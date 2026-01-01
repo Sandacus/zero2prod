@@ -1,5 +1,5 @@
 // tests/health_check.rs
-use zero2prod::{run, HEALTH_CHECK};
+use zero2prod::{HEALTH_CHECK, run};
 // 'tokio::test' is the equivalent of `tokio::main`.
 // It also spares you from having to specify the #[test] attribute.
 //
@@ -32,4 +32,3 @@ async fn health_check_works() {
     assert!(response.status().is_success());
     assert_eq!(Some(0), response.content_length());
 }
-
