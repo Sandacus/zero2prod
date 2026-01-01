@@ -1,5 +1,8 @@
+use std::net::TcpListener;
+
+use zero2prod::HEALTH_CHECK;
+
 // tests/health_check.rs
-use zero2prod::{HEALTH_CHECK, run};
 // 'tokio::test' is the equivalent of `tokio::main`.
 // It also spares you from having to specify the #[test] attribute.
 //
@@ -7,21 +10,25 @@ use zero2prod::{HEALTH_CHECK, run};
 // `cargo expand --test health_check` (<- name of the test file)
 
 // Launch our application in the background
-fn spawn_app() {
-    let server = zero2prod::run().expect("Failed to bind address");
+fn spawn_app() -> String {
+    let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port");
+    // retrieve port assigned by OS
+    let port = listener.local_addr().unwrap().port();
+    let server = zero2prod::run(listener).expect("Failed to bind address");
     tokio::spawn(server);
+
+    // return application address to the caller
+    format!("http://127.0.0.1:{}", port)
 }
 
 #[tokio::test]
 async fn health_check_works() {
     // Arrange
-    spawn_app();
-    // We need to bring in `reqwest`
-    // to perform HTTP requests against our application
+    let address = spawn_app();
     let client = reqwest::Client::new();
 
     // Act
-    let end_point = "http://127.0.0.1:8000".to_owned() + HEALTH_CHECK;
+    let end_point = address + HEALTH_CHECK;
     let response = client
         .get(end_point)
         .send()
