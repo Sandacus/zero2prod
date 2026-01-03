@@ -1,7 +1,7 @@
 //! src/startup.rs
 
-use std::net::TcpListener;
 use actix_web::{App, HttpServer, dev::Server, web};
+use std::net::TcpListener;
 
 use crate::routes::{health_check, subscribe};
 
@@ -13,9 +13,9 @@ pub fn run(listener: TcpListener) -> Result<Server, std::io::Error> {
         App::new()
             .route(HEALTH_CHECK, web::get().to(health_check))
             .route(SUBSCRIBE, web::post().to(subscribe))
-        })
-        .listen(listener)?
-        .run();
+    })
+    .listen(listener)?
+    .run();
 
     Ok(server)
 }
