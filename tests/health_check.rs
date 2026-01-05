@@ -2,7 +2,7 @@
 use std::net::TcpListener;
 
 use actix_web::web;
-use sqlx::{PgConnection, PgPool, Connection, Executor};
+use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 use zero2prod::configuration::{DatabaseSettings, get_configuration};
 use zero2prod::startup::{HEALTH_CHECK, SUBSCRIBE, run};
@@ -18,35 +18,33 @@ async fn spawn_app() -> TestApp {
     // retrieve port assigned by OS
     let port = listener.local_addr().unwrap().port();
     let address = format!("http://127.0.0.1:{}", port);
-    
+
     let mut configuration = get_configuration().expect("Failed to read configuration");
     configuration.database.database_name = Uuid::new_v4().to_string();
 
     let connection_pool = configure_database(&configuration.database).await;
-    
-    let server = run(listener, connection_pool.clone())
-        .expect("Failed to bind address");
+
+    let server = run(listener, connection_pool.clone()).expect("Failed to bind address");
     let _ = tokio::spawn(server);
-    
+
     TestApp {
         address,
-        db_pool: connection_pool
+        db_pool: connection_pool,
     }
 }
 
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
     // create db
-    let mut connection: PgConnection = PgConnection::connect(
-        &config.connection_string_without_db()
-    )
-    .await
-    .expect("Failed to connect to Postgres");
+    let mut connection: PgConnection =
+        PgConnection::connect(&config.connection_string_without_db())
+            .await
+            .expect("Failed to connect to Postgres");
 
     connection
         .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
         .await
         .expect("Failed to create database");
-    
+
     // migrate db
     let connection_pool = PgPool::connect(&config.connection_string())
         .await
@@ -55,7 +53,7 @@ pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
         .run(&connection_pool)
         .await
         .expect("Failed to migrate database");
-    
+
     connection_pool
 }
 
