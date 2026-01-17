@@ -10,9 +10,13 @@ use tracing_log::LogTracer;
 use tracing_subscriber::{EnvFilter, Registry, layer::SubscriberExt};
 
 pub fn get_subscriber(name: String, env_filter: String) -> impl Subscriber + Sync + Send {
-    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(env_filter));
+    let env_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(env_filter));
     let formatting_layer = BunyanFormattingLayer::new(name, std::io::stdout);
-    Registry::default().with(env_filter).with(JsonStorageLayer).with(formatting_layer)
+    Registry::default()
+        .with(env_filter)
+        .with(JsonStorageLayer)
+        .with(formatting_layer)
 }
 
 pub fn init_subscriber(subscriber: impl Subscriber + Sync + Send) {
@@ -24,7 +28,7 @@ pub fn init_subscriber(subscriber: impl Subscriber + Sync + Send) {
 async fn main() -> Result<(), std::io::Error> {
     let subscriber = get_subscriber("zero2prod".into(), "info".into());
     init_subscriber(subscriber);
-    
+
     // for now, panic if we can't read the configuration
     let configuration = get_configuration().expect("Failed to read configuration.");
     let connection_pool = PgPool::connect(&configuration.database.connection_string())
