@@ -1,9 +1,9 @@
 //! tests/health_check.rs
-use std::net::TcpListener;
 use actix_web::web;
-use sqlx::{Connection, Executor, PgConnection, PgPool};
-use uuid::Uuid;
 use once_cell::sync::Lazy;
+use sqlx::{Connection, Executor, PgConnection, PgPool};
+use std::net::TcpListener;
+use uuid::Uuid;
 use zero2prod::configuration::{DatabaseSettings, get_configuration};
 use zero2prod::startup::{HEALTH_CHECK, SUBSCRIBE, run};
 use zero2prod::telemetry::{get_subscriber, init_subscriber};
