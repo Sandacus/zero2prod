@@ -153,7 +153,6 @@ async fn subscribe_returns_a_400_when_data_missing() {
 }
 
 #[tokio::test]
-#[ignore = "not yet implemented email validation"]
 async fn suscriber_returns_a_400_when_fields_are_present_but_invalid() {
     // Arrange
     let app = spawn_app().await;
