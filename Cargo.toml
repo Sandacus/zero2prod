@@ -52,4 +52,4 @@ fake = "2.9"
 quickcheck = "1.0.3"
 quickcheck_macros = "1"
 rand = "0.8"
-
+wiremock = "0.5"
