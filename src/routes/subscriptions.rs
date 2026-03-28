@@ -46,12 +46,21 @@ pub async fn subscribe(
         return HttpResponse::InternalServerError().finish();
     }
 
+    let confirmation_link = "https://dummy-confirmation-link.com/subscriptions/confirm";
+
     if email_client
         .send_email(
             new_subscriber.email,
             "Welcome!",
-            "Welcome to our Newsletter!",
-            "Welcome to our Newsletter!",
+            &format!(
+                "Welcome to our Newsletter!<br />\
+                Click <a href=\"{}\">here</a> to confirm your subscription.",
+                confirmation_link
+            ), 
+            &format!(
+                "Welcome to our Newsletter!\nVisit {} to confirm your subscription.",
+                confirmation_link
+            ),
         )
         .await
         .is_err()
