@@ -10,10 +10,11 @@ use sqlx::postgres::PgPoolOptions;
 use std::net::TcpListener;
 use tracing_actix_web::TracingLogger;
 
-use crate::routes::{health_check, subscribe};
+use crate::routes::{confirm, health_check, subscribe};
 
 pub const HEALTH_CHECK: &str = "/health_check";
 pub const SUBSCRIBE: &str = "/subscriptions";
+pub const SUBSCRIPTIONS_CONFIRMATION: &str = "/subscriptions/confirm";
 
 pub fn get_connection_pool(configuration: &DatabaseSettings) -> PgPool {
     PgPoolOptions::new().connect_lazy_with(configuration.with_db())
@@ -31,6 +32,7 @@ pub fn run(
             .wrap(TracingLogger::default())
             .route(HEALTH_CHECK, web::get().to(health_check))
             .route(SUBSCRIBE, web::post().to(subscribe))
+            .route(SUBSCRIPTIONS_CONFIRMATION, web::get().to(confirm))
             .app_data(db_pool.clone())
             .app_data(email_client.clone())
     })
